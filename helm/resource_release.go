@@ -69,6 +69,11 @@ func resourceRelease() *schema.Resource {
 					return d.Get("version").(string) != ""
 				},
 			},
+			"latest": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Use latest chart version. Equivalent to version ''. If `version` is set it will be ignored",
+			},
 			"values": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -486,6 +491,11 @@ func getChart(d resourceGetter, m *Meta) (c *chart.Chart, path string, err error
 	if version == "" && d.Get("devel").(bool) {
 		debug("setting version to >0.0.0-0")
 		version = ">0.0.0-0"
+	}
+
+	if d.Get("latest").(bool) {
+		debug("setting version to ''")
+		version = ""
 	}
 
 	l, err := newChartLocator(m,
